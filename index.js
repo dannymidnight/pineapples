@@ -16,6 +16,11 @@ var colors = [
   '#cbbba5'
 ];
 
+var images = [
+  'astronaut.png',
+  'pineapple.png'
+];
+
 var pineapples = [], logo;
 
 function bounceInBounds(obj, bounds) {
@@ -38,14 +43,20 @@ function bounceInBounds(obj, bounds) {
 // Pineapple
 // --------------------------------------------------
 
-function Pineapple(image, name) {
+function Pineapple() {
   var direction = Math.random() < 0.5 ? -1 : 1;
-  this.image = image;
+  this.image = {};
   this.dx = (Math.random() * 2 + 1) * direction;
   this.dy = (Math.random() * 2 + 1) * direction;
   this.x = Math.random() * canvas.width;
   this.y = Math.random() * canvas.height;
 }
+
+Pineapple.prototype.fetchImage = function() {
+  var image = new Image();
+  image.src = images[Math.floor(Math.random() * images.length)];
+  this.image = image;
+};
 
 Pineapple.prototype.updatePosition = function(bounds) {
   bounceInBounds(this, bounds);
@@ -109,15 +120,11 @@ function init() {
   });
 
   var createPineapples = new Promise(function(resolve) {
-    var image = new Image();
-    image.src = "./pineapple.png";
-
-    image.onload = function() {
-      for (var i = 0; i < 50; i++) {
-        pineapples.push(new Pineapple(image));
-      }
-      resolve();
-    };
+    for (var i = 0; i < 50; i++) {
+      pineapples.push(new Pineapple());
+      pineapples[i].fetchImage();
+    }
+    resolve();
   });
 
   Promise.all([createLogo, createPineapples]).then(function() {
@@ -137,6 +144,12 @@ function draw(currentTime) {
 
   // Pinapples gone wild
   pineapples.map(function(pineapple) {
+
+    if (currentTime >= lastTime + 1000)  {
+      logo.switchColor();
+      lastTime = currentTime;
+    }
+
     pineapple.draw();
     pineapple.updatePosition(canvas);
   });
