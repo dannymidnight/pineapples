@@ -2,6 +2,7 @@ var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
 var MAX_TILES = 100;
+var NEXT_WAVE_INTERVAL = 10000;
 
 var colors = [
   '#ff7e65',
@@ -24,22 +25,14 @@ var images = [
 ];
 
 var tiles = [], logo;
+var queue = [];
+var activeImage = new Image();
+var queueNextWave = false;
+var lastWaveTime = 0;
+var lastColorTime = 0;
 
-function bounceInBounds(obj, bounds) {
-  if ((obj.x + obj.width) >= bounds.width) {
-    obj.dx = -1 * Math.abs(obj.dx);
-  } else if (obj.x <= 0) {
-    obj.dx = Math.abs(obj.dx);
-  }
-
-  if ((obj.y + obj.height) >= bounds.height) {
-    obj.dy = -1 * Math.abs(obj.dy);
-  } else if (obj.y <= 0) {
-    obj.dy = Math.abs(obj.dy);
-  }
-
-  obj.x += obj.dx;
-  obj.y += obj.dy;
+function fetchNextImage() {
+  return images[Math.floor(Math.random() * images.length)];
 }
 
 // Image tile
@@ -56,67 +49,83 @@ function Tile() {
   this.spinSpeed = Math.random() * .4;
 }
 
-Tile.prototype.fetchImage = function() {
-  var image = new Image();
-  image.src = images[Math.floor(Math.random() * images.length)];
-  this.image = image;
-};
-
 Tile.prototype.draw = function(bounds) {
-  var switchImage = false;
+  var outOfBounds = false;
+  var inQueue = queue.indexOf(this) !== -1;
+  var boundsPadding = 100;
 
-  if ((this.x - 100) >= bounds.width) {
+  if ((this.x - boundsPadding) >= bounds.width) {
     this.dx = -1 * Math.abs(this.dx);
-    switchImage = true;
-  } else if ((this.x + this.width + 100) <= 0) {
+    outOfBounds = true;
+  } else if ((this.x + this.width + boundsPadding) <= 0) {
     this.dx = Math.abs(this.dx);
-    switchImage = true;
+    outOfBounds = true;
   }
 
-  if ((this.y - 100) >= bounds.height) {
+  if ((this.y - boundsPadding) >= bounds.height) {
     this.dy = -1 * Math.abs(this.dy);
-    switchImage = true;
-  } else if ((this.y + this.height + 100) <= 0) {
+    outOfBounds = true;
+  } else if ((this.y + this.height + boundsPadding) <= 0) {
     this.dy = Math.abs(this.dy);
-    switchImage = true;
+    outOfBounds = true;
   }
 
-  if (switchImage) {
-    this.fetchImage();
+  if (outOfBounds && queueNextWave) {
+    if (!inQueue) {
+      queue.push(this);
+    }
   }
 
-  this.x += this.dx;
-  this.y += this.dy;
-  this.width = this.image.width * .5;
-  this.height = this.image.height * .5;
+  if (!inQueue) {
+    this.x += this.dx;
+    this.y += this.dy;
+    this.width = this.image.width * .5;
+    this.height = this.image.height * .5;
 
-  ctx.save();
-  ctx.translate(this.x, this.y);
-  ctx.translate(this.width/2, this.height/2);
-  ctx.rotate(Math.PI / 180 * (this.angle += this.spinSpeed));
-  ctx.drawImage(this.image, -1 * this.width/2, -1 * this.width/2, this.width, this.height);
-  ctx.restore();
+    ctx.save();
+    ctx.translate(this.x, this.y);
+    ctx.translate(this.width/2, this.height/2);
+    ctx.rotate(Math.PI / 180 * (this.angle += this.spinSpeed));
+    ctx.drawImage(this.image, -1 * this.width/2, -1 * this.width/2, this.width, this.height);
+    ctx.restore();
+  }
 };
 
 // Logo
 // --------------------------------------------------
 
-function Logo(image) {
-  this.image = image;
+function Logo() {
+  this.image = new Image();
+  this.image.src = "./99d/99d-logomark-in-square-trans.svg";
   this.scale = 0.25;
   this.color = colors[0];
   this.x = 0;
   this.y = 0;
-  this.width = image.width;
-  this.height = image.width;
+  this.width = this.image.width;
+  this.height = this.image.width;
   this.dx = Math.random() * 2 + 1;
   this.dy = Math.random() * 2 + 1;
 }
 
-Logo.prototype.draw = function() {
+Logo.prototype.draw = function(bounds) {
   var size = canvas.width/6;
   this.width = size;
   this.height = size;
+
+  if ((this.x + this.width) >= bounds.width) {
+    this.dx = -1 * Math.abs(this.dx);
+  } else if (this.x <= 0) {
+    this.dx = Math.abs(this.dx);
+  }
+
+  if ((this.y + this.height) >= bounds.height) {
+    this.dy = -1 * Math.abs(this.dy);
+  } else if (this.y <= 0) {
+    this.dy = Math.abs(this.dy);
+  }
+
+  this.x += this.dx;
+  this.y += this.dy;
 
   ctx.fillStyle = this.color;
   ctx.fillRect(this.x, this.y, this.width, this.height);
@@ -127,11 +136,6 @@ Logo.prototype.switchColor = function() {
   this.color = colors[Math.floor(Math.random() * colors.length)];
 };
 
-Logo.prototype.updatePosition = function(bounds) {
-  bounceInBounds(this, bounds);
-};
-
-
 // The thing.
 // --------------------------------------------------
 
@@ -139,41 +143,36 @@ function init() {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
 
-  tiles = [];
-  logo = null;
+  logo = new Logo();
 
-  var createLogo = new Promise(function(resolve) {
-    var image = new Image();
-    image.src = "./99d/99d-logomark-in-square-trans.svg";
+  activeImage.src = fetchNextImage();
+  for (var i = 0; i < MAX_TILES; i++) {
+    tiles.push(new Tile());
+    tiles[i].image = activeImage;
+  }
 
-    image.onload = function() {
-      logo = new Logo(image);
-      resolve();
-    };
-  });
+  window.onresize = function() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  };
 
-  var createTiles = new Promise(function(resolve) {
-    for (var i = 0; i < MAX_TILES; i++) {
-      tiles.push(new Tile());
-      tiles[i].fetchImage();
-    }
-    resolve();
-  });
-
-  Promise.all([createLogo, createTiles]).then(function() {
-    window.onresize = function() {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.requestAnimationFrame(draw);
-  });
+  window.requestAnimationFrame(draw);
 }
 
-var lastImageTime = 0, lastColorTime = 0;
 function draw(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   window.requestAnimationFrame(draw);
+
+  if (queue.length === tiles.length) {
+    queue = [];
+    activeImage.src = fetchNextImage();
+    queueNextWave = false;
+    lastWaveTime = currentTime;
+  }
+
+  if (!queueNextWave && currentTime >= lastWaveTime + NEXT_WAVE_INTERVAL)  {
+    queueNextWave = true;
+  }
 
   // Pinapples gone wild
   tiles.map(function(tile) {
@@ -186,8 +185,7 @@ function draw(currentTime) {
     lastColorTime = currentTime;
   }
 
-  logo.draw();
-  logo.updatePosition(canvas);
+  logo.draw(canvas);
 }
 
 init();
