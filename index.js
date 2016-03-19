@@ -52,6 +52,8 @@ function Tile() {
   this.dy = (Math.random() * 2 + 1) * direction;
   this.x = Math.random() * canvas.width;
   this.y = Math.random() * canvas.height;
+  this.angle = Math.random() * 180;
+  this.spinSpeed = Math.random() * .4;
 }
 
 Tile.prototype.fetchImage = function() {
@@ -88,7 +90,12 @@ Tile.prototype.draw = function(bounds) {
   this.width = this.image.width * .5;
   this.height = this.image.height * .5;
 
-  ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+  ctx.save();
+  ctx.translate(this.x, this.y);
+  ctx.translate(this.width/2, this.height/2);
+  ctx.rotate(Math.PI / 180 * (this.angle += this.spinSpeed));
+  ctx.drawImage(this.image, -1 * this.width/2, -1 * this.width/2, this.width, this.height);
+  ctx.restore();
 };
 
 // Logo
