@@ -1,7 +1,7 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var MAX_TILES = 40;
+var MAX_TILES = 100;
 
 var colors = [
   '#ff7e65',
