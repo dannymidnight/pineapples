@@ -1,6 +1,8 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
+var MAX_TILES = 40;
+
 var colors = [
   '#ff7e65',
   '#f6caa2',
@@ -21,7 +23,7 @@ var images = [
   'pineapple.png'
 ];
 
-var pineapples = [], logo;
+var tiles = [], logo;
 
 function bounceInBounds(obj, bounds) {
   if ((obj.x + obj.width) >= bounds.width) {
@@ -40,10 +42,10 @@ function bounceInBounds(obj, bounds) {
   obj.y += obj.dy;
 }
 
-// Pineapple
+// Image tile
 // --------------------------------------------------
 
-function Pineapple() {
+function Tile() {
   var direction = Math.random() < 0.5 ? -1 : 1;
   this.image = {};
   this.dx = (Math.random() * 2 + 1) * direction;
@@ -52,17 +54,37 @@ function Pineapple() {
   this.y = Math.random() * canvas.height;
 }
 
-Pineapple.prototype.fetchImage = function() {
+Tile.prototype.fetchImage = function() {
   var image = new Image();
   image.src = images[Math.floor(Math.random() * images.length)];
   this.image = image;
 };
 
-Pineapple.prototype.updatePosition = function(bounds) {
-  bounceInBounds(this, bounds);
-};
+Tile.prototype.draw = function(bounds) {
+  var switchImage = false;
 
-Pineapple.prototype.draw = function() {
+  if ((this.x - 100) >= bounds.width) {
+    this.dx = -1 * Math.abs(this.dx);
+    switchImage = true;
+  } else if ((this.x + this.width + 100) <= 0) {
+    this.dx = Math.abs(this.dx);
+    switchImage = true;
+  }
+
+  if ((this.y - 100) >= bounds.height) {
+    this.dy = -1 * Math.abs(this.dy);
+    switchImage = true;
+  } else if ((this.y + this.height + 100) <= 0) {
+    this.dy = Math.abs(this.dy);
+    switchImage = true;
+  }
+
+  if (switchImage) {
+    this.fetchImage();
+  }
+
+  this.x += this.dx;
+  this.y += this.dy;
   this.width = this.image.width * .5;
   this.height = this.image.height * .5;
 
@@ -102,11 +124,15 @@ Logo.prototype.updatePosition = function(bounds) {
   bounceInBounds(this, bounds);
 };
 
+
+// The thing.
+// --------------------------------------------------
+
 function init() {
   canvas.height = window.innerHeight;
   canvas.width = window.innerWidth;
 
-  pineapples = [];
+  tiles = [];
   logo = null;
 
   var createLogo = new Promise(function(resolve) {
@@ -119,15 +145,15 @@ function init() {
     };
   });
 
-  var createPineapples = new Promise(function(resolve) {
-    for (var i = 0; i < 50; i++) {
-      pineapples.push(new Pineapple());
-      pineapples[i].fetchImage();
+  var createTiles = new Promise(function(resolve) {
+    for (var i = 0; i < MAX_TILES; i++) {
+      tiles.push(new Tile());
+      tiles[i].fetchImage();
     }
     resolve();
   });
 
-  Promise.all([createLogo, createPineapples]).then(function() {
+  Promise.all([createLogo, createTiles]).then(function() {
     window.onresize = function() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
@@ -137,35 +163,24 @@ function init() {
   });
 }
 
-var lastTime = 0;
+var lastImageTime = 0, lastColorTime = 0;
 function draw(currentTime) {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   window.requestAnimationFrame(draw);
 
   // Pinapples gone wild
-  pineapples.map(function(pineapple) {
-
-    if (currentTime >= lastTime + 1000)  {
-      logo.switchColor();
-      lastTime = currentTime;
-    }
-
-    pineapple.draw();
-    pineapple.updatePosition(canvas);
+  tiles.map(function(tile) {
+    tile.draw(canvas);
   });
 
   // Logo
-  if (currentTime >= lastTime + 1000)  {
+  if (currentTime >= lastColorTime + 1000)  {
     logo.switchColor();
-    lastTime = currentTime;
+    lastColorTime = currentTime;
   }
+
   logo.draw();
   logo.updatePosition(canvas);
-
-  // RESKIN, RESKIN, RESKIN
-  // ctx.font="8em Larsseit-Bold";
-  // ctx.textAlign="center";
-  // ctx.fillText("Reskin!",canvas.width/2,canvas.height/2);
 }
 
 init();
