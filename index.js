@@ -12,8 +12,7 @@
     window.requestAnimationFrame = function(callback, element) {
       var currTime = new Date().getTime();
       var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() { callback(currTime + timeToCall); },
-                                 timeToCall);
+      var id = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
       lastTime = currTime + timeToCall;
       return id;
     };
@@ -25,11 +24,10 @@
 }());
 
 
-
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var MAX_TILES = 100;
+var MAX_TILES = 60;
 var NEXT_WAVE_INTERVAL = 10000;
 
 var colors = [
