@@ -189,7 +189,18 @@ function init() {
     canvas.height = window.innerHeight;
   };
 
-  window.requestAnimationFrame(draw);
+  // Preload all the images.
+  const loadImages = images.map((src) => {
+    return new Promise((resolve) => {
+      let image = new Image();
+      image.src = src;
+      image.onload = resolve;
+    });
+  });
+
+  Promise.all(loadImages).then(() => {
+    window.requestAnimationFrame(draw);
+  });
 }
 
 function draw(currentTime) {
