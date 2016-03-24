@@ -194,7 +194,10 @@ function init() {
     return new Promise((resolve) => {
       let image = new Image();
       image.src = src;
-      image.onload = resolve;
+      image.onload = () => {
+        console.info('Loaded: %s', src);
+        resolve();
+      };
     });
   });
 
