@@ -136,8 +136,8 @@ function Logo() {
   this.y = 0;
   this.width = this.image.width;
   this.height = this.image.width;
-  this.dx = Math.random() * 2 + 1;
-  this.dy = Math.random() * 2 + 1;
+  this.dx = 1.5;
+  this.dy = 1.5;
 }
 
 Logo.prototype.draw = function(bounds) {
