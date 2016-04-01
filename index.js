@@ -27,8 +27,8 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var MAX_TILES = 60;
-var NEXT_WAVE_INTERVAL = 10000;
+var MAX_TILES = 100;
+var NEXT_WAVE_INTERVAL = 20000;
 
 var colors = [
   '#ff7e65',
@@ -52,8 +52,10 @@ var images = [
   'images/jockey.png',
   // 'images/donkey.png', // too bug
   'images/lemon.png',
+  'images/pineapple.png',
   // 'images/dino.png', // naaah
   'images/octopus.png',
+  'images/lemon.png',
   // 'images/trophy.png', // too small
 ];
 
@@ -228,7 +230,7 @@ function draw(currentTime) {
   });
 
   // Logo
-  if (currentTime >= lastColorTime + 1000)  {
+  if (currentTime >= lastColorTime + 3000)  {
     logo.switchColor();
     lastColorTime = currentTime;
   }
