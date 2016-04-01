@@ -196,8 +196,9 @@ function init() {
       image.src = src;
       image.onload = () => {
         console.info('Loaded: %s', src);
-        resolve();
       };
+
+      resolve();
     });
   });
 
