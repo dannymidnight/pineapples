@@ -27,7 +27,7 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var MAX_TILES = 100;
+var MAX_TILES = 30;
 var NEXT_WAVE_INTERVAL = 20000;
 var CYCLE_FOREGROUND_COLOR = false;
 
@@ -47,7 +47,7 @@ var colors = [
 ];
 
 var images = [
-  'images/cake.png',
+  'images/cake-x3.png',
 ];
 
 var tiles = [], logo;
