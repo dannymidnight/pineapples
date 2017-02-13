@@ -46,17 +46,7 @@ var colors = [
 ];
 
 var images = [
-  'images/astronaut.png',
-  'images/pineapple.png',
-  'images/hummingbird.png',
-  'images/jockey.png',
-  // 'images/donkey.png', // too bug
-  'images/lemon.png',
-  'images/pineapple.png',
-  // 'images/dino.png', // naaah
-  'images/octopus.png',
-  'images/lemon.png',
-  // 'images/trophy.png', // too small
+  'images/cake.png',
 ];
 
 var tiles = [], logo;
