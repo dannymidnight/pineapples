@@ -29,6 +29,7 @@ var ctx = canvas.getContext('2d');
 
 var MAX_TILES = 100;
 var NEXT_WAVE_INTERVAL = 20000;
+var CYCLE_FOREGROUND_COLOR = false;
 
 var colors = [
   '#ff7e65',
@@ -46,17 +47,7 @@ var colors = [
 ];
 
 var images = [
-  'images/astronaut.png',
-  'images/pineapple.png',
-  'images/hummingbird.png',
-  'images/jockey.png',
-  // 'images/donkey.png', // too bug
-  'images/lemon.png',
-  'images/pineapple.png',
-  // 'images/dino.png', // naaah
-  'images/octopus.png',
-  'images/lemon.png',
-  // 'images/trophy.png', // too small
+  'images/cake.png',
 ];
 
 var tiles = [], logo;
@@ -131,21 +122,21 @@ Tile.prototype.draw = function(bounds) {
 
 function Logo() {
   this.image = new Image();
-  this.image.src = "./99d/99d-logomark-in-square-trans.svg";
-  this.scale = 0.25;
+  this.image.src = "./images/happy birthday.svg";
   this.color = colors[0];
   this.x = 0;
   this.y = 0;
   this.width = this.image.width;
-  this.height = this.image.width;
+  this.height = this.image.height;
   this.dx = 1.5;
   this.dy = 1.5;
 }
 
 Logo.prototype.draw = function(bounds) {
   var size = canvas.width/6;
-  this.width = size;
-  this.height = size;
+
+  this.width = size * (this.image.width/100)
+  this.height = size * (this.image.height/100);
 
   if ((this.x + this.width) >= bounds.width) {
     this.dx = -1 * Math.abs(this.dx);
@@ -162,8 +153,11 @@ Logo.prototype.draw = function(bounds) {
   this.x += this.dx;
   this.y += this.dy;
 
-  ctx.fillStyle = this.color;
-  ctx.fillRect(this.x, this.y, this.width, this.height);
+  if (CYCLE_FOREGROUND_COLOR) {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+
   ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 };
 
