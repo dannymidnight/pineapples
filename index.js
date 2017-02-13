@@ -29,6 +29,7 @@ var ctx = canvas.getContext('2d');
 
 var MAX_TILES = 100;
 var NEXT_WAVE_INTERVAL = 20000;
+var CYCLE_FOREGROUND_COLOR = false;
 
 var colors = [
   '#ff7e65',
@@ -152,8 +153,11 @@ Logo.prototype.draw = function(bounds) {
   this.x += this.dx;
   this.y += this.dy;
 
-  /* ctx.fillStyle = this.color;*/
-  /* ctx.fillRect(this.x, this.y, this.width, this.height);*/
+  if (CYCLE_FOREGROUND_COLOR) {
+    ctx.fillStyle = this.color;
+    ctx.fillRect(this.x, this.y, this.width, this.height);
+  }
+
   ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
 };
 
