@@ -27,11 +27,12 @@
 var canvas = document.getElementById('canvas');
 var ctx = canvas.getContext('2d');
 
-var MAX_TILES = 30;
+var MAX_TILES = 50;
 var NEXT_WAVE_INTERVAL = 20000;
-var CYCLE_FOREGROUND_COLOR = false;
+var CYCLE_FOREGROUND_COLOR = true;
+var FOREGROUND_IMAGE = './99d/99d-logomark-in-square-trans.svg';
 
-var colors = [
+var COLORS = [
   '#ff7e65',
   '#f6caa2',
   '#ce283D',
@@ -46,8 +47,16 @@ var colors = [
   '#cbbba5'
 ];
 
-var images = [
-  'images/cake-x3.png',
+var IMAGES = [
+  'images/astronaut.png',
+  'images/pineapple.png',
+  'images/hummingbird.png',
+  'images/jockey.png',
+  'images/lemon.png',
+  'images/pineapple.png',
+  'images/octopus.png',
+  'images/lemon.png',
+  /* 'images/cake-x3.png',*/
 ];
 
 var tiles = [], logo;
@@ -58,7 +67,7 @@ var lastWaveTime = 0;
 var lastColorTime = 0;
 
 function fetchNextImage() {
-  return images[Math.floor(Math.random() * images.length)];
+  return IMAGES[Math.floor(Math.random() * IMAGES.length)];
 }
 
 // Image tile
@@ -122,8 +131,8 @@ Tile.prototype.draw = function(bounds) {
 
 function Logo() {
   this.image = new Image();
-  this.image.src = "./images/happy birthday.svg";
-  this.color = colors[0];
+  this.image.src = FOREGROUND_IMAGE;
+  this.color = COLORS[0];
   this.x = 0;
   this.y = 0;
   this.width = this.image.width;
@@ -162,7 +171,7 @@ Logo.prototype.draw = function(bounds) {
 };
 
 Logo.prototype.switchColor = function() {
-  this.color = colors[Math.floor(Math.random() * colors.length)];
+  this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
 };
 
 // The thing.
@@ -186,7 +195,7 @@ function init() {
   };
 
   // Preload all the images.
-  const loadImages = images.map((src) => {
+  const loadImages = IMAGES.map((src) => {
     return new Promise((resolve) => {
       let image = new Image();
       image.src = src;
