@@ -64,7 +64,6 @@ var queue = [];
 var activeImage = new Image();
 var queueNextWave = false;
 var lastWaveTime = 0;
-var lastColorTime = 0;
 
 function fetchNextImage() {
   return IMAGES[Math.floor(Math.random() * IMAGES.length)];
@@ -148,14 +147,18 @@ Logo.prototype.draw = function(bounds) {
   this.height = size * (this.image.height/100);
 
   if ((this.x + this.width) >= bounds.width) {
+    this.switchColor();
     this.dx = -1 * Math.abs(this.dx);
   } else if (this.x <= 0) {
+    this.switchColor();
     this.dx = Math.abs(this.dx);
   }
 
   if ((this.y + this.height) >= bounds.height) {
+    this.switchColor();
     this.dy = -1 * Math.abs(this.dy);
   } else if (this.y <= 0) {
+    this.switchColor();
     this.dy = Math.abs(this.dy);
   }
 
@@ -231,12 +234,6 @@ function draw(currentTime) {
   tiles.map(function(tile) {
     tile.draw(canvas);
   });
-
-  // Logo
-  if (currentTime >= lastColorTime + 3000)  {
-    logo.switchColor();
-    lastColorTime = currentTime;
-  }
 
   logo.draw(canvas);
 }
