@@ -1,18 +1,21 @@
 // Polyfill
 (function() {
   var lastTime = 0;
-  var vendors = ['ms', 'moz', 'webkit', 'o'];
-  for(var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
-    window.requestAnimationFrame = window[vendors[x]+'RequestAnimationFrame'];
-    window.cancelAnimationFrame = window[vendors[x]+'CancelAnimationFrame']
-      || window[vendors[x]+'CancelRequestAnimationFrame'];
+  var vendors = ["ms", "moz", "webkit", "o"];
+  for (var x = 0; x < vendors.length && !window.requestAnimationFrame; ++x) {
+    window.requestAnimationFrame = window[vendors[x] + "RequestAnimationFrame"];
+    window.cancelAnimationFrame =
+      window[vendors[x] + "CancelAnimationFrame"] ||
+      window[vendors[x] + "CancelRequestAnimationFrame"];
   }
 
   if (!window.requestAnimationFrame)
     window.requestAnimationFrame = function(callback, element) {
       var currTime = new Date().getTime();
       var timeToCall = Math.max(0, 16 - (currTime - lastTime));
-      var id = window.setTimeout(function() { callback(currTime + timeToCall); }, timeToCall);
+      var id = window.setTimeout(function() {
+        callback(currTime + timeToCall);
+      }, timeToCall);
       lastTime = currTime + timeToCall;
       return id;
     };
@@ -21,45 +24,35 @@
     window.cancelAnimationFrame = function(id) {
       clearTimeout(id);
     };
-}());
+})();
 
-
-var canvas = document.getElementById('canvas');
-var ctx = canvas.getContext('2d');
+var canvas = document.getElementById("canvas");
+var ctx = canvas.getContext("2d");
 
 var MAX_TILES = 50;
 var NEXT_WAVE_INTERVAL = 20000;
 var CYCLE_FOREGROUND_COLOR = true;
-var FOREGROUND_IMAGE = './99d/99d-logomark-in-square-trans.svg';
+var FOREGROUND_IMAGE = "./99d/99d-logomark-in-square-trans.svg";
 
 var COLORS = [
-  '#ff7e65',
-  '#f6caa2',
-  '#ce283D',
-  '#f0a9b7',
-  '#752873',
-  '#b36ea7',
-  '#1f3ca6',
-  '#81a3e6',
-  '#2f9780',
-  '#a4d2d4',
-  '#95837b',
-  '#cbbba5'
+  "#ff7e65",
+  "#f6caa2",
+  "#ce283D",
+  "#f0a9b7",
+  "#752873",
+  "#b36ea7",
+  "#1f3ca6",
+  "#81a3e6",
+  "#2f9780",
+  "#a4d2d4",
+  "#95837b",
+  "#cbbba5"
 ];
 
-var IMAGES = [
-  'images/astronaut.png',
-  'images/pineapple.png',
-  'images/hummingbird.png',
-  'images/jockey.png',
-  'images/lemon.png',
-  'images/pineapple.png',
-  'images/octopus.png',
-  'images/lemon.png',
-  /* 'images/cake-x3.png',*/
-];
+var IMAGES = ["images/judith1.png", "images/judith2.png", "images/judith3.png"];
 
-var tiles = [], logo;
+var tiles = [],
+  logo;
 var queue = [];
 var activeImage = new Image();
 var queueNextWave = false;
@@ -68,6 +61,8 @@ var lastWaveTime = 0;
 function fetchNextImage() {
   return IMAGES[Math.floor(Math.random() * IMAGES.length)];
 }
+
+const bgImage = document.querySelector(".bg svg");
 
 // Image tile
 // --------------------------------------------------
@@ -80,7 +75,7 @@ function Tile() {
   this.x = Math.random() * canvas.width;
   this.y = Math.random() * canvas.height;
   this.angle = Math.random() * 180;
-  this.spinSpeed = Math.random() * .4;
+  this.spinSpeed = Math.random() * 0.4;
 }
 
 Tile.prototype.draw = function(bounds) {
@@ -88,18 +83,18 @@ Tile.prototype.draw = function(bounds) {
   var inQueue = queue.indexOf(this) !== -1;
   var boundsPadding = 100;
 
-  if ((this.x - boundsPadding) >= bounds.width) {
+  if (this.x - boundsPadding >= bounds.width) {
     this.dx = -1 * Math.abs(this.dx);
     outOfBounds = true;
-  } else if ((this.x + this.width + boundsPadding) <= 0) {
+  } else if (this.x + this.width + boundsPadding <= 0) {
     this.dx = Math.abs(this.dx);
     outOfBounds = true;
   }
 
-  if ((this.y - boundsPadding) >= bounds.height) {
+  if (this.y - boundsPadding >= bounds.height) {
     this.dy = -1 * Math.abs(this.dy);
     outOfBounds = true;
-  } else if ((this.y + this.height + boundsPadding) <= 0) {
+  } else if (this.y + this.height + boundsPadding <= 0) {
     this.dy = Math.abs(this.dy);
     outOfBounds = true;
   }
@@ -113,14 +108,20 @@ Tile.prototype.draw = function(bounds) {
   if (!inQueue) {
     this.x += this.dx;
     this.y += this.dy;
-    this.width = this.image.width * .5;
-    this.height = this.image.height * .5;
+    this.width = this.image.width * 0.5;
+    this.height = this.image.height * 0.5;
 
     ctx.save();
     ctx.translate(this.x, this.y);
-    ctx.translate(this.width/2, this.height/2);
-    ctx.rotate(Math.PI / 180 * (this.angle += this.spinSpeed));
-    ctx.drawImage(this.image, -1 * this.width/2, -1 * this.width/2, this.width, this.height);
+    ctx.translate(this.width / 2, this.height / 2);
+    ctx.rotate((Math.PI / 180) * (this.angle += this.spinSpeed));
+    ctx.drawImage(
+      this.image,
+      (-1 * this.width) / 2,
+      (-1 * this.width) / 2,
+      this.width,
+      this.height
+    );
     ctx.restore();
   }
 };
@@ -141,12 +142,12 @@ function Logo() {
 }
 
 Logo.prototype.draw = function(bounds) {
-  var size = canvas.width/6;
+  var size = canvas.width * 0.1;
 
-  this.width = size * (this.image.width/100)
-  this.height = size * (this.image.height/100);
+  this.width = size * (this.image.width / 100);
+  this.height = size * (this.image.height / 100);
 
-  if ((this.x + this.width) >= bounds.width) {
+  if (this.x + this.width >= bounds.width) {
     this.switchColor();
     this.dx = -1 * Math.abs(this.dx);
   } else if (this.x <= 0) {
@@ -154,7 +155,7 @@ Logo.prototype.draw = function(bounds) {
     this.dx = Math.abs(this.dx);
   }
 
-  if ((this.y + this.height) >= bounds.height) {
+  if (this.y + this.height >= bounds.height) {
     this.switchColor();
     this.dy = -1 * Math.abs(this.dy);
   } else if (this.y <= 0) {
@@ -175,6 +176,7 @@ Logo.prototype.draw = function(bounds) {
 
 Logo.prototype.switchColor = function() {
   this.color = COLORS[Math.floor(Math.random() * COLORS.length)];
+  bgImage.setAttribute("style", `fill: ${this.color}`);
 };
 
 // The thing.
@@ -186,10 +188,14 @@ function init() {
 
   logo = new Logo();
 
-  activeImage.src = fetchNextImage();
+  // activeImage.src = fetchNextImage();
   for (var i = 0; i < MAX_TILES; i++) {
     tiles.push(new Tile());
-    tiles[i].image = activeImage;
+
+    const image = new Image();
+    image.src = fetchNextImage();
+
+    tiles[i].image = image;
   }
 
   window.onresize = function() {
@@ -198,12 +204,12 @@ function init() {
   };
 
   // Preload all the images.
-  const loadImages = IMAGES.map((src) => {
-    return new Promise((resolve) => {
+  const loadImages = IMAGES.map(src => {
+    return new Promise(resolve => {
       let image = new Image();
       image.src = src;
       image.onload = () => {
-        console.info('Loaded: %s', src);
+        console.info("Loaded: %s", src);
       };
 
       resolve();
@@ -221,12 +227,12 @@ function draw(currentTime) {
 
   if (queue.length === tiles.length) {
     queue = [];
-    activeImage.src = fetchNextImage();
+    // activeImage.src = fetchNextImage();
     queueNextWave = false;
     lastWaveTime = currentTime;
   }
 
-  if (!queueNextWave && currentTime >= lastWaveTime + NEXT_WAVE_INTERVAL)  {
+  if (!queueNextWave && currentTime >= lastWaveTime + NEXT_WAVE_INTERVAL) {
     queueNextWave = true;
   }
 
